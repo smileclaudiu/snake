@@ -14,7 +14,6 @@ const initialFood = () => {
 
 const initialState = {
   snakeBody: [{ x: 2, y: 2 }, { x: 2, y: 3 }, { x: 2, y: 4 }],
-  direction: 1,
   isRunning: false,
   level: 1,
   streak: 0,
@@ -24,6 +23,9 @@ class App extends React.Component {
   constructor() {
     super();
     this.state = {...initialState};
+    this.direction = 1;
+    this.directionChanged = false;
+    this.timer = null;
   }
 
   componentDidMount() {
@@ -31,23 +33,24 @@ class App extends React.Component {
   }
 
   move = () => {
-    let snakeBody = [...this.state.snakeBody];
-    const head = { ...snakeBody[snakeBody.length - 1] };
+    var initialSnakeBody = JSON.parse(JSON.stringify(this.state.snakeBody));
+    const head = JSON.parse(JSON.stringify(initialSnakeBody[initialSnakeBody.length - 1]));
     this.advance(head);
     this.dontLeave(head);
-    if (this.getCellType(head.x, head.y) === "snakeBody") {
-      this.endGame();
-      return;
-    } else snakeBody = [...snakeBody, head];
-
+    
     if (this.getCellType(head.x, head.y) === "foodBody") {
       this.generateFood();
-      const [level, streak] = this.processLevel();
-      this.setState({ snakeBody, level, streak });
+      this.processLevel();
     } else {
-      snakeBody.splice(0, 1);
-      this.setState({ snakeBody });
+      initialSnakeBody.splice(0, 1);
     }
+    
+    if (this.getCellType(head.x, head.y, initialSnakeBody) === "snakeBody") {
+      this.endGame();
+      return;
+    }
+    this.directionChanged = false;
+    this.setState({snakeBody: [...initialSnakeBody, head]})
   };
 
   processLevel = () => {
@@ -60,16 +63,16 @@ class App extends React.Component {
       clearInterval(this.timer);
       this.timer = setInterval(this.move, (11 - level) * 30);
     }
-    return [level, streak];
+    this.setState({level, streak})
   };
 
   advance = head => {
     if (this.state.isRunning) {
-      this.state.direction === 1
+      this.direction === 1
         ? head.y++
-        : this.state.direction === 2
+        : this.direction === 2
         ? head.x++
-        : this.state.direction === 3
+        : this.direction === 3
         ? head.y--
         : head.x--;
     }
@@ -83,25 +86,13 @@ class App extends React.Component {
   };
 
   changeDirection = e => {
-    if (e.repeat) return;
-    if ((e.key === "w" || e.key === "ArrowUp") && this.state.direction !== 2) {
-      this.setState({ direction: 0 });
-    } else if (
-      (e.key === "d" || e.key === "ArrowRight") &&
-      this.state.direction !== 3
-    ) {
-      this.setState({ direction: 1 });
-    } else if (
-      (e.key === "s" || e.key === "ArrowDown") &&
-      this.state.direction !== 0
-    ) {
-      this.setState({ direction: 2 });
-    } else if (
-      (e.key === "a" || e.key === "ArrowLeft") &&
-      this.state.direction !== 1
-    ) {
-      this.setState({ direction: 3 });
-    }
+    if (e.repeat || this.directionChanged) return;
+    var initialDirection = this.direction;
+    if ((e.key === "w" || e.key === "ArrowUp") && this.direction !== 2) this.direction = 0;
+      else if ((e.key === "d" || e.key === "ArrowRight") && this.direction !== 3) this.direction = 1;
+      else if ((e.key === "s" || e.key === "ArrowDown") && this.direction !== 0) this.direction = 2;
+      else if ((e.key === "a" || e.key === "ArrowLeft") && this.direction !== 1) this.direction = 3;
+    if(this.direction !== initialDirection) this.directionChanged = true;
   };
 
   generateFood = () => {
@@ -114,8 +105,8 @@ class App extends React.Component {
     this.setState({foodBody: { x: xx, y: yy }})
   };
 
-  getCellType = (x, y) => {
-     var isSnakeCell = this.state.snakeBody.some(cell => {
+  getCellType = (x, y, snakeBody = this.state.snakeBody) => {
+     var isSnakeCell = snakeBody.some(cell => {
        return cell.x === x && cell.y === y
      }
     ) 
@@ -130,11 +121,11 @@ class App extends React.Component {
   }
 
   startGame = () => {
+    if (this.state.isRunning) clearInterval(this.timer);
+    else this.timer = setInterval(this.move, (11 - this.state.level) * 30);
     this.setState(prev => {
       return { isRunning: !prev.isRunning };
     });
-    if (this.state.isRunning) clearInterval(this.timer);
-    else this.timer = setInterval(this.move, (11 - this.state.level) * 30);
   };
 
   restart = () => {
@@ -143,6 +134,8 @@ class App extends React.Component {
       isRunning: true,
       foodBody: initialFood()
     });
+    this.direction = 1;
+    this.directionChanged = false;
     clearInterval(this.timer);
     this.timer = setInterval(this.move, (11 - initialState.level) * 30);
     document.getElementById("lostMessage").style.display = "none";
