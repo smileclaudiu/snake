@@ -85,13 +85,13 @@ class App extends React.Component {
     else if (head.x < 0) head.x = 29;
   };
 
-  changeDirection = e => {
+  changeDirection = (e, button = null) => {
     if (e.repeat || this.directionChanged) return;
     var initialDirection = this.direction;
-    if ((e.key === "w" || e.key === "ArrowUp") && this.direction !== 2) this.direction = 0;
-      else if ((e.key === "d" || e.key === "ArrowRight") && this.direction !== 3) this.direction = 1;
-      else if ((e.key === "s" || e.key === "ArrowDown") && this.direction !== 0) this.direction = 2;
-      else if ((e.key === "a" || e.key === "ArrowLeft") && this.direction !== 1) this.direction = 3;
+    if ((e.key === "w" || e.key === "ArrowUp" || button === "up") && this.direction !== 2) this.direction = 0;
+      else if ((e.key === "d" || e.key === "ArrowRight" || button === "right") && this.direction !== 3) this.direction = 1;
+      else if ((e.key === "s" || e.key === "ArrowDown" || button === "down") && this.direction !== 0) this.direction = 2;
+      else if ((e.key === "a" || e.key === "ArrowLeft" || button === "left") && this.direction !== 1) this.direction = 3;
     if(this.direction !== initialDirection) this.directionChanged = true;
   };
 
@@ -181,6 +181,12 @@ class App extends React.Component {
             );
           })}
         </div>
+        {((typeof window.orientation !== "undefined") || (navigator.userAgent.indexOf('IEMobile') !== -1)) && <div id="controls">
+            <button className="displayBlockButton" onClick={ (e)=> this.changeDirection(e, 'up')}>	&uarr;</button>
+            <button onClick={ (e)=> this.changeDirection(e, 'left')} >&larr;</button>
+            <button id="rButton" onClick={ (e)=> this.changeDirection(e, 'right')} >&rarr;</button>
+            <button className="displayBlockButton" onClick={ (e)=> this.changeDirection(e, 'down')} >&darr;</button>
+          </div>}
       </>
     );
   }

@@ -6,22 +6,22 @@ html, body {
   display: flex;
   flex-flow: column nowrap;
   justify-content: center;
-  height: 100vh;
+  height: 80vh;
   align-items: center;
 }
 .field {
-  width: 600px;
-  height: 600px;
+  width: 360px;
+  height: 360px;
   background-color: #eee;
   border: 2px solid #aaa;
 }
 .linie {
-  height: 20px;
+  height: 12px;
 }
 .cell, .snakeBody, .foodBody {
   display: inline-block;
-  width: 18px;
-  height: 18px;
+  width: 10px;
+  height: 10px;
   border: 1px solid #ccc;
 }
 
@@ -50,7 +50,7 @@ html, body {
   display: flex;
   flex-flow: row wrap;
   justify-content: center;
-  width: 600px;
+  width: 360px;
   height: 50px;
   border: 2px solid #aaa;
   border-bottom: none;
@@ -62,4 +62,44 @@ html, body {
 }
 #startButton {
   margin-bottom: 10px;
+}
+.displayBlockButton {
+  display: block;
+}
+#rButton {
+  float:right;
+}
+#controls {
+  margin-top: 10px;
+  height: 50px;
+  width: 100px;
+}
+#controls button {
+  height: 30px;
+  width: 30px;
+  border-radius: 50%;
+  margin: 0 auto;
+  user-select: none;
+  cursor: pointer;
+  background-color: #eee;
+}
+
+@media only screen and (min-width: 768px) { 
+  .field {
+    width: 600px;
+    height: 600px;
+  }
+  .linie {
+    height: 20px;
+  }
+  .cell, .snakeBody, .foodBody {
+    display: inline-block;
+    width: 18px;
+    height: 18px;
+    border: 1px solid #ccc;
+  }
+  #info {
+    width: 600px;
+  }
+
 }
